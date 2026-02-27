@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Log Analyzer — Roadmap</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f0f6fc;
+    letter-spacing: -0.5px;
+  }
+
+  header p {
+    margin-top: 8px;
+    color: #8b949e;
+    font-size: 0.95rem;
+  }
+
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .pipeline::before {
+    content: '';
+    position: absolute;
+    left: 31px;
+    top: 40px;
+    bottom: 40px;
+    width: 2px;
+    background: linear-gradient(to bottom, #30363d 0%, #30363d 100%);
+    z-index: 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+    padding-bottom: 8px;
+  }
+
+  .step:last-child { padding-bottom: 0; }
+
+  .node {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    border: 2px solid;
+    background: #161b22;
+    transition: transform 0.2s;
+    cursor: default;
+  }
+
+  .step:hover .node { transform: scale(1.08); }
+
+  .node .num {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+
+  .connector {
+    display: flex;
+    align-items: center;
+    padding: 6px 0 6px 31px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .connector-line {
+    width: 2px;
+    height: 24px;
+    background: #30363d;
+    margin-left: -1px;
+  }
+
+  /* step colors */
+  .s1 .node { border-color: #58a6ff; color: #58a6ff; }
+  .s2 .node { border-color: #3fb950; color: #3fb950; }
+  .s3 .node { border-color: #f78166; color: #f78166; }
+  .s4 .node { border-color: #d2a8ff; color: #d2a8ff; }
+  .s5 .node { border-color: #ffa657; color: #ffa657; }
+  .s6 .node { border-color: #79c0ff; color: #79c0ff; }
+
+  .card {
+    flex: 1;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .step:hover .card {
+    border-color: #58a6ff44;
+    box-shadow: 0 0 0 1px #58a6ff22;
+  }
+
+  .s1:hover .card { border-color: #58a6ff55; box-shadow: 0 0 0 1px #58a6ff22; }
+  .s2:hover .card { border-color: #3fb95055; box-shadow: 0 0 0 1px #3fb95022; }
+  .s3:hover .card { border-color: #f7816655; box-shadow: 0 0 0 1px #f7816622; }
+  .s4:hover .card { border-color: #d2a8ff55; box-shadow: 0 0 0 1px #d2a8ff22; }
+  .s5:hover .card { border-color: #ffa65755; box-shadow: 0 0 0 1px #ffa65722; }
+  .s6:hover .card { border-color: #79c0ff55; box-shadow: 0 0 0 1px #79c0ff22; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f0f6fc;
+  }
+
+  .badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .badge-concept { background: #58a6ff22; color: #58a6ff; }
+  .badge-data    { background: #3fb95022; color: #3fb950; }
+  .badge-core    { background: #f7816622; color: #f78166; }
+  .badge-config  { background: #d2a8ff22; color: #d2a8ff; }
+  .badge-skill   { background: #ffa65722; color: #ffa657; }
+  .badge-test    { background: #79c0ff22; color: #79c0ff; }
+
+  .card-desc {
+    font-size: 0.875rem;
+    color: #8b949e;
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  .deliverables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: #21262d;
+    color: #8b949e;
+    border: 1px solid #30363d;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+  }
+
+  .signal {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: #0d1117;
+    border-left: 3px solid #30363d;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.8rem;
+    color: #6e7681;
+  }
+
+  .signal strong { color: #8b949e; }
+
+  footer {
+    text-align: center;
+    margin-top: 48px;
+    color: #6e7681;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔍 Mini Log Analyzer com MCP</h1>
+  <p>Roadmap de aprendizado — do protocolo ao loop completo</p>
+</header>
+
+<div class="pipeline">
+
+  <!-- Etapa 1 -->
+  <div class="step s1">
+    <div class="node">🧠<span class="num">01</span></div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Entender o MCP</span>
+        <span class="badge badge-concept">Conceito</span>
+      </div>
+      <p class="card-desc">Construir o modelo mental do protocolo antes de qualquer código. MCP é RPC sobre stdio — Claude inicia o server.py como processo filho e troca mensagens JSON pelo stdin/stdout.</p>
+      <div class="deliverables">
+        <span class="tag">list_tools()</span>
+        <span class="tag">call_tool()</span>
+        <span class="tag">stdio transport</span>
+        <span class="tag">SDK mcp</span>
+      </div>
+      <div class="signal"><strong>✓ Sinal:</strong> conseguir explicar com suas palavras o que acontece quando Claude chama uma tool.</div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div></div>
+
+  <!-- Etapa 2 -->
+  <div class="step s2">
+    <div class="node">🗄️<span class="num">02</span></div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Gerar os dados falsos</span>
+        <span class="badge badge-data">Dados</span>
+      </div>
+      <p class="card-desc">Criar fake_logs.json com 500–1000 registros realistas de logs Kubernetes, incluindo padrões como OOM errors, timeouts e connection refused.</p>
+      <div class="deliverables">
+        <span class="tag">fake_logs.json</span>
+        <span class="tag">faker</span>
+        <span class="tag">id, timestamp, level</span>
+        <span class="tag">service, pod, namespace</span>
+      </div>
+      <div class="signal"><strong>✓ Sinal:</strong> arquivo gerado com distribuição razoável de níveis e namespaces.</div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div></div>
+
+  <!-- Etapa 3 -->
+  <div class="step s3">
+    <div class="node">⚙️<span class="num">03</span></div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Construir o server.py</span>
+        <span class="badge badge-core">Core</span>
+      </div>
+      <p class="card-desc">Implementar 4 tools no MCP server com os padrões obrigatórios: summary_only, fields filter, bloco _meta e cap de resposta em 10KB.</p>
+      <div class="deliverables">
+        <span class="tag">search_logs</span>
+        <span class="tag">count_logs</span>
+        <span class="tag">get_log_by_id</span>
+        <span class="tag">list_services</span>
+        <span class="tag">summary_only</span>
+        <span class="tag">_meta</span>
+        <span class="tag">response cap</span>
+      </div>
+      <div class="signal"><strong>✓ Sinal:</strong> rodar server.py sem erro e testar manualmente via stdin.</div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div></div>
+
+  <!-- Etapa 4 -->
+  <div class="step s4">
+    <div class="node">🔌<span class="num">04</span></div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Configurar o .mcp.json</span>
+        <span class="badge badge-config">Config</span>
+      </div>
+      <p class="card-desc">Registrar o server no Claude Code com caminhos absolutos para o Python e para o server.py.</p>
+      <div class="deliverables">
+        <span class="tag">.mcp.json</span>
+        <span class="tag">caminhos absolutos</span>
+        <span class="tag">type: stdio</span>
+      </div>
+      <div class="signal"><strong>✓ Sinal:</strong> rodar <code>claude</code> e ver o MCP server listado como conectado.</div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div></div>
+
+  <!-- Etapa 5 -->
+  <div class="step s5">
+    <div class="node">📘<span class="num">05</span></div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Escrever o SKILL.md</span>
+        <span class="badge badge-skill">Skill</span>
+      </div>
+      <p class="card-desc">Ensinar o Claude a usar as tools de forma custo-consciente: contar antes de buscar, usar fields filter, interpretar _meta e só fazer full fetch quando necessário.</p>
+      <div class="deliverables">
+        <span class="tag">SKILL.md</span>
+        <span class="tag">plano de query</span>
+        <span class="tag">interpretação _meta</span>
+        <span class="tag">exemplos de uso</span>
+      </div>
+      <div class="signal"><strong>✓ Sinal:</strong> Claude responde "quais ferramentas você tem?" usando o conteúdo do SKILL.md.</div>
+    </div>
+  </div>
+
+  <div class="connector"><div class="connector-line"></div></div>
+
+  <!-- Etapa 6 -->
+  <div class="step s6">
+    <div class="node">🧪<span class="num">06</span></div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Testar o loop completo</span>
+        <span class="badge badge-test">Teste</span>
+      </div>
+      <p class="card-desc">Fazer perguntas em linguagem natural e observar se Claude segue o plano do SKILL.md: usa summary_only, lê _meta, adapta as próximas chamadas.</p>
+      <div class="deliverables">
+        <span class="tag">perguntas em PT</span>
+        <span class="tag">observar tool calls</span>
+        <span class="tag">validar _meta loop</span>
+      </div>
+      <div class="signal"><strong>✓ Sinal:</strong> Claude responde sem fazer fetches desnecessários de documentos.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Mini Log Analyzer com MCP · Projeto de aprendizado</footer>
+
+</body>
+</html>
